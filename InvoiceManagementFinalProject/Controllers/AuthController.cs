@@ -46,6 +46,20 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse<AuthResponseDto>.SuccessResponse(result));
     }
 
+    [HttpPost("refresh")]
+    public async Task<ActionResult<ApiResponse<AuthResponseDto>>> Refresh([FromBody] RefreshTokenRequest refreshTokenRequest)
+    {
+        var result = await _authService.RefreshTokenAsync(refreshTokenRequest);
+        return Ok(ApiResponse<AuthResponseDto>.SuccessResponse(result, "Token refresh successfully"));
+    }
+
+    [HttpPost("revoke")]
+    public async Task<ActionResult> Revoke([FromBody] RefreshTokenRequest refreshTokenRequest)
+    {
+        await _authService.RevokeRefreshTokenAsync(refreshTokenRequest);
+        return Ok(ApiResponse<AuthResponseDto>.SuccessResponse("Token revoke successfully"));
+    }
+
     [Authorize(Policy = "User")]
     [HttpPut("me/profile")]
     public async Task<ActionResult> UpdateMyProfile([FromBody] UpdateProfileRequest req)

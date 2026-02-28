@@ -1,6 +1,7 @@
 ﻿using InvoiceManagementFinalProject.Common;
 using InvoiceManagementFinalProject.DTOs.Customer_DTOs;
 using InvoiceManagementFinalProject.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace InvoiceManagementFinalProject.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Policy = "User")]
 public class CustomersController : ControllerBase
 {
     private readonly ICustomerService _customerService;

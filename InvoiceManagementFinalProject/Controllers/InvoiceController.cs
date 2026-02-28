@@ -3,12 +3,14 @@ using InvoiceManagementFinalProject.DTOs.Customer_DTOs;
 using InvoiceManagementFinalProject.DTOs.Invoice_DTOs;
 using InvoiceManagementFinalProject.Services;
 using InvoiceManagementFinalProject.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InvoiceManagementFinalProject.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Policy = "User")]
 public class InvoiceController : ControllerBase
 {
 	private readonly IInvoiceService _invoiceService;

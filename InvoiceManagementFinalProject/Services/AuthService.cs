@@ -133,12 +133,12 @@ public class AuthService : IAuthService
         return newTokens;
     }
 
-    public async Task RevokeRefreshTokenAsync(string refreshToken)
+    public async Task RevokeRefreshTokenAsync(RefreshTokenRequest refreshTokenRequest)
     {
         string? jti;
         try
         {
-            (_, jti) = ValidateRefreshJwtAndGetJti(refreshToken, false);
+            (_, jti) = ValidateRefreshJwtAndGetJti(refreshTokenRequest.RefreshToken, false);
         }
         catch
         {

@@ -7,12 +7,19 @@ public class CreateInvoiceValidator : AbstractValidator<CreateInvoiceRequest>
 {
     public CreateInvoiceValidator()
     {
-
         RuleFor(x => x.CustomerId)
            .NotEmpty().WithMessage("CustomerId is required");
 
-        RuleFor(x => x.Comment)
-               .MinimumLength(3).WithMessage("Comment must be at least 3 characters long");
+        RuleFor(x => x.StartDate)
+            .NotEmpty().WithMessage("StartDate is required");
 
+        RuleFor(x => x.EndDate)
+            .NotEmpty().WithMessage("EndDate is required")
+            .GreaterThan(x => x.StartDate)
+            .WithMessage("EndDate must be greater than StartDate");
+
+        RuleFor(x => x.Comment)
+               .MaximumLength(500).WithMessage("Comment must be at least 500 characters long")
+               .When(x => !string.IsNullOrEmpty(x.Comment));
     }
 }

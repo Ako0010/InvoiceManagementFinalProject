@@ -11,6 +11,6 @@ namespace InvoiceManagementFinalProject.Services.Interfaces
         Task DeleteOwnProfileAsync(string userId);
         Task<AuthResponseDto> ChangePasswordAsync(string userId, string currentPassword, string newPassword);
         Task<AuthResponseDto> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest);
-        Task RevokeRefreshTokenAsync(string refreshToken);
+        Task RevokeRefreshTokenAsync(RefreshTokenRequest refreshTokenRequest);
     }
 }

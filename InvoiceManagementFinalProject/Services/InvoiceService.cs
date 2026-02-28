@@ -176,14 +176,28 @@ public class InvoiceService : IInvoiceService
         var isDescending = sortDirection?.ToLower() == "desc";
         return sort.ToLower() switch
         {
-            "name" => isDescending 
-                                 ? query.OrderByDescending(i => i.Customer.Name) 
-                                 : query.OrderBy(i => i.Customer.Name),
-
-            "comment" => isDescending 
-                                    ? query.OrderByDescending(i => i.Comment) 
-                                    : query.OrderBy(i => i.Comment),
-            _ => query.OrderBy(i => i.Id)
+            "customerid" => isDescending
+               ? query.OrderByDescending(i => i.CustomerId)
+               : query.OrderBy(i => i.CustomerId),
+            "startdate" => isDescending
+                ? query.OrderByDescending(i => i.StartDate)
+                : query.OrderBy(i => i.StartDate),
+            "enddate" => isDescending
+                ? query.OrderByDescending(i => i.EndDate)
+                : query.OrderBy(i => i.EndDate),
+            "totalsum" => isDescending
+                ? query.OrderByDescending(i => i.TotalSum)
+                : query.OrderBy(i => i.TotalSum),
+            "status" => isDescending
+                ? query.OrderByDescending(i => i.Status)
+                : query.OrderBy(i => i.Status),
+            "createdat" => isDescending
+                ? query.OrderByDescending(i => i.CreatedAt)
+                : query.OrderBy(i => i.CreatedAt),
+            "updatedat" => isDescending
+                ? query.OrderByDescending(i => i.UpdatedAt)
+                : query.OrderBy(i => i.UpdatedAt),
+            _ => query.OrderByDescending(i => i.CreatedAt)
         };
     }
         
