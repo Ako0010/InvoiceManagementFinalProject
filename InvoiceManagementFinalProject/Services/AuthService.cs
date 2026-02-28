@@ -57,6 +57,8 @@ public class AuthService : IAuthService
             UserName = registerRequest.Email,
             Email = registerRequest.Email,
             Name = registerRequest.Name,
+            Address = registerRequest.Address,
+            PhoneNumber = registerRequest.PhoneNumber,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = null
         };
