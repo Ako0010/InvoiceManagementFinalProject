@@ -1,6 +1,8 @@
 ﻿using InvoiceManagementFinalProject.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Net.Mail;
 
 namespace InvoiceManagementFinalProject.Data;
 
@@ -14,6 +16,7 @@ public class HWDbContext : IdentityDbContext<AppUser>
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<InvoiceRow> InvoiceRows => Set<InvoiceRow>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<InvoiceAttachment> Attachments => Set<InvoiceAttachment>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -96,5 +99,42 @@ public class HWDbContext : IdentityDbContext<AppUser>
                       .OnDelete(DeleteBehavior.Cascade);
 
            });
+        modelBuilder.Entity<InvoiceAttachment>(
+            attachment =>
+            {
+                attachment.HasKey(ta => ta.Id);
+
+                attachment
+                    .Property(ta => ta.OriginalFileName)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                attachment
+                    .Property(ta => ta.StoredFileName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                attachment
+                    .Property(ta => ta.ContentType)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                attachment
+                    .Property(ta => ta.UploadedUserId)
+                    .IsRequired()
+                    .HasMaxLength(450);
+
+                attachment
+                    .HasOne(ta => ta.Invoice)
+                    .WithMany(t => t.Attachments)
+                    .HasForeignKey(ta => ta.InvoiceId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                attachment
+                    .HasOne(ta => ta.UploadedUser)
+                    .WithMany()
+                    .HasForeignKey(ta => ta.UploadedUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
     }
 }

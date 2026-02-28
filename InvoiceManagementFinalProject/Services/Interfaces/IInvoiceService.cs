@@ -13,8 +13,7 @@ namespace InvoiceManagementFinalProject.Services.Interfaces
         Task<InvoiceResponseDto?> ChangeInvoiceStatusAsync(Guid id, ChangeStatusInvoiceRequest changeStatusInvoiceRequest);
         Task<bool> DeleteInvoiceAsync(Guid id);
         Task<InvoiceResponseDto?> ArchiveInvoiceAsync(Guid id);
-
-
+        Task<(byte[] Content, string FileName, string ContentType)?> DownloadInvoiceAsync(Guid id, string format);
 
     }
 }

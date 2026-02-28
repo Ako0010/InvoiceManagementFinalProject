@@ -15,7 +15,7 @@ public class Invoice
     public DateTimeOffset UpdatedAt { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
 
-
+    public ICollection<InvoiceAttachment> Attachments { get; set; } = new List<InvoiceAttachment>();
 }
 
 public enum InvoiceStatus

@@ -6,6 +6,7 @@ using InvoiceManagementFinalProject.Mappings;
 using InvoiceManagementFinalProject.Models;
 using InvoiceManagementFinalProject.Services;
 using InvoiceManagementFinalProject.Services.Interfaces;
+using InvoiceManagementFinalProject.Storage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -159,14 +160,13 @@ public static class ServiceCollectionExtensions
                     };
                 }
             );
-        
-        services.AddAuthorization(
-            options => { 
-                options.AddPolicy(
-                "User",
-                policy 
-                => policy.RequireClaim("User"));
-    });
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("User",
+                policy => policy.RequireRole("User"));
+        });
+
         return services;
     }
 
@@ -208,6 +208,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IInvoiceService, InvoiceService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IAttachmentService, AttachmentService>();
+        services.AddScoped<IFileStorage, LocalDiskStorage>();
+
 
         return services;
 

@@ -13,7 +13,7 @@ namespace InvoiceManagementFinalProject.Controllers;
 [Authorize(Policy = "User")]
 public class InvoiceController : ControllerBase
 {
-	private readonly IInvoiceService _invoiceService;
+    private readonly IInvoiceService _invoiceService;
 
     public InvoiceController(IInvoiceService invoiceService)
     {
@@ -37,7 +37,7 @@ public class InvoiceController : ControllerBase
 
     [HttpGet("{id}")]
     public async Task<ActionResult<InvoiceResponseDto>> GetById(Guid id)
-        {
+    {
         var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
         if (invoice == null)
         {
@@ -95,4 +95,13 @@ public class InvoiceController : ControllerBase
         return Ok(isArchive);
     }
 
+
+    [HttpGet("{id:guid}/download")]
+    public async Task<ActionResult> Download(Guid id, [FromQuery] string format = "pdf")
+    {
+        var file = await _invoiceService.DownloadInvoiceAsync(id, format ?? "pdf");
+        if (file is null) return NotFound();
+
+        return File(file.Value.Content, file.Value.ContentType, file.Value.FileName);
+    }
 }
