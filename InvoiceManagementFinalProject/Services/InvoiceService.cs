@@ -54,8 +54,11 @@ public class InvoiceService : IInvoiceService
         if (invoice.Status != InvoiceStatus.Created)
             return null;
 
+        if (Enum.TryParse<InvoiceStatus>(changeStatusInvoiceRequest.Status, out var status))
+        {
+          invoice.Status = status;
+        }
 
-        invoice.Status = changeStatusInvoiceRequest.Status;
         invoice.UpdatedAt = DateTimeOffset.UtcNow;
 
         await _context.SaveChangesAsync();

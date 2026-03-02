@@ -4,5 +4,5 @@ namespace InvoiceManagementFinalProject.DTOs.Invoice_DTOs;
 
 public class ChangeStatusInvoiceRequest
 {
-    public InvoiceStatus Status { get; set; }
+    public string Status { get; set; }
 }
