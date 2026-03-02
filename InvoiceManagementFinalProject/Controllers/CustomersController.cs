@@ -4,6 +4,7 @@ using InvoiceManagementFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace InvoiceManagementFinalProject.Controllers;
 
@@ -25,7 +26,9 @@ public class CustomersController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<CustomerResponseDto>), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Create([FromBody] CreateCustomerRequest createCustomerRequest)
     {
-        var createdCustomer = await _customerService.CreateCustomerAsync(createCustomerRequest);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var createdCustomer = await _customerService.CreateCustomerAsync(createCustomerRequest,userId);
         return CreatedAtAction(
             nameof(GetById), 
             new { id = createdCustomer.Id }, 
@@ -36,7 +39,8 @@ public class CustomersController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<IEnumerable<CustomerResponseDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult> GetAll()
     {
-        var customers = await _customerService.GetAllCustomersAsync();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var customers = await _customerService.GetAllCustomersAsync(userId);
         return Ok(ApiResponse<IEnumerable<CustomerResponseDto>>.SuccessResponse(customers, "Customers returned successfully"));
     }
 
@@ -53,7 +57,8 @@ public class CustomersController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<CustomerResponseDto>), StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetById([FromBody]Guid id)
     {
-        var customer = await _customerService.GetCustomerByIdAsync(id);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var customer = await _customerService.GetCustomerByIdAsync(id,userId);
         return Ok(ApiResponse<CustomerResponseDto>.SuccessResponse(customer, "Customer returned successfully"));
     }
 

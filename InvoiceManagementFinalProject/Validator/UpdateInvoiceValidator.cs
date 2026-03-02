@@ -30,5 +30,8 @@ public class UpdateInvoiceValidator : AbstractValidator<UpdateInvoiceRequest>
         RuleFor(x => x.Comment)
                .MaximumLength(500).WithMessage("Comment must be at least 500 characters long")
                .When(x => !string.IsNullOrEmpty(x.Comment));
+
+        RuleForEach(x => x.Rows)
+            .SetValidator(new UpdateInvoiceRowValidator());
     }
 }

@@ -34,10 +34,11 @@ public class CustomerService : ICustomerService
         return _mapper.Map<CustomerResponseDto>(customer);
     }
 
-    public async Task<CustomerResponseDto> CreateCustomerAsync(CreateCustomerRequest createCustomerRequest)
+    public async Task<CustomerResponseDto> CreateCustomerAsync(CreateCustomerRequest createCustomerRequest,string currentUserId)
     {
         var customer = _mapper.Map<Customer>(createCustomerRequest);
 
+        customer.UserId = currentUserId;
         customer.CreatedAt = DateTimeOffset.UtcNow;
         customer.UpdatedAt = DateTimeOffset.UtcNow;
 
@@ -69,11 +70,11 @@ public class CustomerService : ICustomerService
 
     }
 
-    public async Task<List<CustomerResponseDto>> GetAllCustomersAsync()
+    public async Task<List<CustomerResponseDto>> GetAllCustomersAsync(string currentUserId)
     {
         var customers = await _context
             .Customers
-            .Where(c => c.DeletedAt == null)
+            .Where(c => c.DeletedAt == null && c.UserId == currentUserId)
             .ToListAsync();
 
         return _mapper.Map<List<CustomerResponseDto>>(customers);
@@ -141,11 +142,14 @@ public class CustomerService : ICustomerService
     }
 
 
-    public async Task<CustomerResponseDto> GetCustomerByIdAsync(Guid customerId)
+    public async Task<CustomerResponseDto> GetCustomerByIdAsync(Guid customerId,string currentUserId)
     {
         var customer = await _context
                                 .Customers
-                                 .FirstOrDefaultAsync(c => c.Id == customerId && c.DeletedAt == null);
+                                .Where(c => c.DeletedAt == null && c.UserId == currentUserId)                                
+                                .FirstOrDefaultAsync(c => c.Id == customerId);
+        if (customer is null)
+            return null;
 
         return _mapper.Map<CustomerResponseDto>(customer);
     }

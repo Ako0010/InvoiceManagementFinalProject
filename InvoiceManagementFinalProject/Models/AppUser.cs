@@ -9,4 +9,6 @@ public class AppUser : IdentityUser
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
 
+    public ICollection<Customer> Customers { get; set; } = new List<Customer>();
+
 }

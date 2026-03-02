@@ -62,10 +62,10 @@ public class InvoiceService : IInvoiceService
         return _mapper.Map<InvoiceResponseDto>(invoice);
     }
 
-    public async Task<InvoiceResponseDto> CreateInvoiceAsync(CreateInvoiceRequest createInvoiceRequest)
+    public async Task<InvoiceResponseDto> CreateInvoiceAsync(CreateInvoiceRequest createInvoiceRequest, string currentUserId)
     {
         var customer = await _context.Customers
-                             .FirstOrDefaultAsync(c => c.Id == createInvoiceRequest.CustomerId);
+                             .FirstOrDefaultAsync(c => c.Id == createInvoiceRequest.CustomerId && c.UserId == currentUserId);
 
         var invoice = _mapper.Map<Invoice>(createInvoiceRequest);
 
@@ -112,11 +112,11 @@ public class InvoiceService : IInvoiceService
         return true;
     }
 
-    public async Task<IEnumerable<InvoiceResponseDto>> GetAllInvoicesAsync()
+    public async Task<IEnumerable<InvoiceResponseDto>> GetAllInvoicesAsync(string currentUserId)
     {
         var invoices = await _context
                              .Invoices
-                             .Where(i => i.DeletedAt == null)
+                             .Where(i => i.DeletedAt == null && i.Customer.UserId == currentUserId)
                              .Include(t => t.Customer)
                              .Include(t => t.InvoiceRows)
                              .ToListAsync();

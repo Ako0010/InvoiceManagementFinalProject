@@ -39,6 +39,11 @@ public class HWDbContext : IdentityDbContext<AppUser>
                 .HasMaxLength(20);
                 customer.Property(e => e.CreatedAt)
                 .IsRequired();
+
+                customer.HasOne(e => e.AppUser)
+                 .WithMany()
+                 .HasForeignKey(e => e.UserId)
+                 .OnDelete(DeleteBehavior.Cascade);
             }
             );
 

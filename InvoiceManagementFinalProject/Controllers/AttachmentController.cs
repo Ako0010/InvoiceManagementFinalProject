@@ -43,7 +43,7 @@ namespace InvoiceManagementFinalProject.Controllers
             if (invoice is null)
                 return NotFound();
 
-            var customer = await _customerService.GetCustomerByIdAsync(invoice.CustomerId);
+            var customer = await _customerService.GetCustomerByIdAsync(invoice.CustomerId,UserId);
             if (customer is null)
                 return NotFound();
 
@@ -81,7 +81,7 @@ namespace InvoiceManagementFinalProject.Controllers
             if (invoice is null)
                 return NotFound();
 
-            var customer = await _customerService.GetCustomerByIdAsync(invoice.CustomerId);
+            var customer = await _customerService.GetCustomerByIdAsync(invoice.CustomerId,UserId);
 
             if (customer is null)
                 return NotFound();

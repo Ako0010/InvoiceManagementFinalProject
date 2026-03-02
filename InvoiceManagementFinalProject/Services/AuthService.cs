@@ -163,6 +163,8 @@ public class AuthService : IAuthService
         var result = await _userManager.DeleteAsync(user);
         if (!result.Succeeded)
             throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
+
+
     }
 
     private async Task<AuthResponseDto> GenerateTokensAsync(AppUser user)

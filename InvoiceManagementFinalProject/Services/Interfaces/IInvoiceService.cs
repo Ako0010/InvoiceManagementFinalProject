@@ -5,10 +5,10 @@ namespace InvoiceManagementFinalProject.Services.Interfaces
 {
     public interface IInvoiceService
     {
-        Task<IEnumerable<InvoiceResponseDto>> GetAllInvoicesAsync();
+        Task<IEnumerable<InvoiceResponseDto>> GetAllInvoicesAsync(string currentUserId);
         Task<PagedResult<InvoiceResponseDto>> GetPagedAsync(InvoiceQueryParams invoiceQueryParams);
         Task<InvoiceResponseDto?> GetInvoiceByIdAsync(Guid id);
-        Task<InvoiceResponseDto> CreateInvoiceAsync(CreateInvoiceRequest createInvoiceRequest);
+        Task<InvoiceResponseDto> CreateInvoiceAsync(CreateInvoiceRequest createInvoiceRequest, string currentUserId);
         Task<InvoiceResponseDto?> UpdateInvoiceAsync(Guid id, UpdateInvoiceRequest updateInvoiceRequest);
         Task<InvoiceResponseDto?> ChangeInvoiceStatusAsync(Guid id, ChangeStatusInvoiceRequest changeStatusInvoiceRequest);
         Task<bool> DeleteInvoiceAsync(Guid id);

@@ -5,6 +5,7 @@ using InvoiceManagementFinalProject.Services;
 using InvoiceManagementFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace InvoiceManagementFinalProject.Controllers;
 
@@ -24,7 +25,8 @@ public class InvoiceController : ControllerBase
 
     public async Task<ActionResult<IEnumerable<InvoiceResponseDto>>> GetAll()
     {
-        var invoices = await _invoiceService.GetAllInvoicesAsync();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var invoices = await _invoiceService.GetAllInvoicesAsync(userId);
         return Ok(ApiResponse<IEnumerable<InvoiceResponseDto>>.SuccessResponse(invoices, "Invoices retrieved successfully!"));
     }
 
@@ -49,7 +51,8 @@ public class InvoiceController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<InvoiceResponseDto>> Create([FromBody] CreateInvoiceRequest createInvoiceRequest)
     {
-        var createdInvoice = await _invoiceService.CreateInvoiceAsync(createInvoiceRequest);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var createdInvoice = await _invoiceService.CreateInvoiceAsync(createInvoiceRequest,userId);
         if (createdInvoice == null)
             return NotFound($"Customer with ID {createInvoiceRequest.CustomerId} not found");
         return CreatedAtAction(nameof(GetById), new { id = createdInvoice.Id }, createdInvoice);
