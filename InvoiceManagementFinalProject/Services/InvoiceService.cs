@@ -147,6 +147,30 @@ public class InvoiceService : IInvoiceService
                             .Include(i => i.InvoiceRows)
                             .AsQueryable();
 
+        if (!string.IsNullOrEmpty(invoiceQueryParams.CustomerName))
+        {
+            var searchTerm = invoiceQueryParams.CustomerName.ToLower();
+            query = query.Where(i => i.Customer!.Name.ToLower().Contains(searchTerm));
+        }
+
+        if (!string.IsNullOrEmpty(invoiceQueryParams.Status))
+        {
+            if (Enum.TryParse<InvoiceStatus>(invoiceQueryParams.Status, true, out var status))
+            {
+                query = query.Where(i => i.Status == status);
+            }
+        }
+
+        if (invoiceQueryParams.MinTotal.HasValue)
+        {
+            query = query.Where(i => i.TotalSum >= invoiceQueryParams.MinTotal.Value);
+        }
+
+        if (invoiceQueryParams.MaxTotal.HasValue)
+        {
+            query = query.Where(i => i.TotalSum <= invoiceQueryParams.MaxTotal.Value);
+        }
+
         if (!string.IsNullOrWhiteSpace(invoiceQueryParams.Search))
         {
             var searchTerm = invoiceQueryParams.Search.ToLower();

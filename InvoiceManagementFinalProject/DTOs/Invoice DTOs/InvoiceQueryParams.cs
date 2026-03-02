@@ -10,6 +10,13 @@ public class InvoiceQueryParams
     public string? SortDirection { get; set; }
     public string? Search { get; set; }
 
+    public string? CustomerName { get; set; }
+    public string? Status { get; set; }
+
+    public decimal? MinTotal { get; set; }
+    public decimal? MaxTotal { get; set; }
+
+
     public void Validate()
     {
         if (Page < 1) Page = 1;
