@@ -464,11 +464,6 @@ public class InvoiceService : IInvoiceService
         totalP.Append(invoice.TotalSum.ToString("0.00")).Bold();
         totalP.Alignment = Alignment.right;
 
-        doc.InsertParagraph().SpacingAfter(15);
-        doc.InsertParagraph("Thank you for your business • Invoice Management System")
-            .FontSize(10)
-            .Alignment = Alignment.center;
-
         doc.Save();
         return ms.ToArray();
     }
