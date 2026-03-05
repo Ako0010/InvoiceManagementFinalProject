@@ -24,12 +24,12 @@ public class InvoiceService : IInvoiceService
         _context = context;
         _mapper = mapper;
     }
-    public async Task<InvoiceResponseDto?> ArchiveInvoiceAsync(Guid id)
+    public async Task<InvoiceResponseDto?> ArchiveInvoiceAsync(Guid id, string currentUserId)
     {
 
         var invoice = await _context
                                 .Invoices
-                                .FirstOrDefaultAsync(i => i.Id == id && i.DeletedAt == null);
+                                .FirstOrDefaultAsync(i => i.Id == id && i.DeletedAt == null && i.Customer != null && i.Customer.UserId == currentUserId);
 
         if (invoice is null) return null;
 
@@ -43,13 +43,13 @@ public class InvoiceService : IInvoiceService
         return _mapper.Map<InvoiceResponseDto>(invoice);
     }
 
-    public async Task<InvoiceResponseDto?> ChangeInvoiceStatusAsync(Guid id, ChangeStatusInvoiceRequest changeStatusInvoiceRequest)
+    public async Task<InvoiceResponseDto?> ChangeInvoiceStatusAsync(Guid id, ChangeStatusInvoiceRequest changeStatusInvoiceRequest, string currentUserId)
     {
 
         var invoice = await _context
                                 .Invoices
                                 .Include(i => i.Customer)
-                                .FirstOrDefaultAsync(i => i.Id == id && i.DeletedAt == null);
+                                .FirstOrDefaultAsync(i => i.Id == id && i.DeletedAt == null && i.Customer != null && i.Customer.UserId == currentUserId);
 
         if (invoice.Status != InvoiceStatus.Created)
             return null;
@@ -99,11 +99,11 @@ public class InvoiceService : IInvoiceService
     }
 
 
-    public async Task<bool> DeleteInvoiceAsync(Guid id)
+    public async Task<bool> DeleteInvoiceAsync(Guid id, string currentUserId)
     {
         var invoice = await _context
                             .Invoices
-                            .FirstOrDefaultAsync(i => i.Id == id && i.DeletedAt == null);
+                            .FirstOrDefaultAsync(i => i.Id == id && i.DeletedAt == null && i.Customer != null && i.Customer.UserId == currentUserId);
 
         if (invoice == null) return false;
 
@@ -127,22 +127,24 @@ public class InvoiceService : IInvoiceService
         return _mapper.Map<IEnumerable<InvoiceResponseDto>>(invoices);
     }
 
-    public async Task<InvoiceResponseDto?> GetInvoiceByIdAsync(Guid id)
+    public async Task<InvoiceResponseDto?> GetInvoiceByIdAsync(Guid id,string currentUserId)
     {
         var invoice = await _context
                             .Invoices
                             .Include(t => t.Customer)
-                            .FirstOrDefaultAsync(t => t.Id == id);
+                            .FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null && t.Customer != null && t.Customer.UserId == currentUserId);
 
         return _mapper.Map<InvoiceResponseDto?>(invoice);
     }
 
-    public async Task<PagedResult<InvoiceResponseDto>> GetPagedAsync(InvoiceQueryParams invoiceQueryParams)
+    public async Task<PagedResult<InvoiceResponseDto>> GetPagedAsync(InvoiceQueryParams invoiceQueryParams,string currectUserId)
     {
         invoiceQueryParams.Validate();
 
         var query = _context.Invoices
-                            .Where(i => i.DeletedAt == null)
+                            .Where(i => i.DeletedAt == null &&
+                                        i.Customer != null &&
+                                        i.Customer.UserId == currectUserId)
                             .Include(i => i.Customer)
                             .Include(i => i.InvoiceRows)
                             .AsQueryable();
@@ -233,13 +235,13 @@ public class InvoiceService : IInvoiceService
         };
     }
         
-    public async Task<InvoiceResponseDto?> UpdateInvoiceAsync(Guid id, UpdateInvoiceRequest updateInvoiceRequest)
+    public async Task<InvoiceResponseDto?> UpdateInvoiceAsync(Guid id, UpdateInvoiceRequest updateInvoiceRequest, string currentUserId)
     {
         var updatedInvoice = await _context
                             .Invoices
                             .Include(i => i.Customer)
                             .Include(i => i.InvoiceRows)
-                            .FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null);
+                            .FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null && t.Customer != null && t.Customer.UserId == currentUserId);
 
         if (updatedInvoice == null) return null;
 
@@ -272,12 +274,12 @@ public class InvoiceService : IInvoiceService
         return _mapper.Map<InvoiceResponseDto>(updatedInvoice);
     }
 
-    public async Task<(byte[] Content, string FileName, string ContentType)?> DownloadInvoiceAsync(Guid id, string format)
+    public async Task<(byte[] Content, string FileName, string ContentType)?> DownloadInvoiceAsync(Guid id, string format,string currentUserId)
     {
         var invoice = _context.Invoices
            .Include(i => i.Customer)
            .Include(i => i.InvoiceRows)
-           .FirstOrDefault(i => i.Id == id && i.DeletedAt == null);
+           .FirstOrDefault(i => i.Id == id && i.DeletedAt == null && i.Customer != null && i.Customer.UserId == currentUserId);
 
         if (invoice == null) return null;
 

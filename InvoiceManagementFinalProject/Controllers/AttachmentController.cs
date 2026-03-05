@@ -39,7 +39,7 @@ namespace InvoiceManagementFinalProject.Controllers
             CancellationToken cancellationToken
             )
         {
-            var invoice = await _invoiceService.GetInvoiceByIdAsync(invoiceId);
+            var invoice = await _invoiceService.GetInvoiceByIdAsync(invoiceId,UserId);
             if (invoice is null)
                 return NotFound();
 
@@ -76,7 +76,7 @@ namespace InvoiceManagementFinalProject.Controllers
             if (info is null)
                 return NotFound();
 
-            var invoice = await _invoiceService.GetInvoiceByIdAsync(info.InvoiceId);
+            var invoice = await _invoiceService.GetInvoiceByIdAsync(info.InvoiceId,UserId);
 
             if (invoice is null)
                 return NotFound();
@@ -103,7 +103,7 @@ namespace InvoiceManagementFinalProject.Controllers
             if (info is null)
                 return NotFound();
 
-            var invoice = await _invoiceService.GetInvoiceByIdAsync(info.InvoiceId);
+            var invoice = await _invoiceService.GetInvoiceByIdAsync(info.InvoiceId,UserId);
 
             var deleted = await _attachmentService.DeleteAsync(id, cancellationToken);
             if (!deleted)

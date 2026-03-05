@@ -15,6 +15,7 @@ namespace InvoiceManagementFinalProject.Controllers;
 public class InvoiceController : ControllerBase
 {
     private readonly IInvoiceService _invoiceService;
+    private string? UserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
     public InvoiceController(IInvoiceService invoiceService)
     {
@@ -25,22 +26,21 @@ public class InvoiceController : ControllerBase
 
     public async Task<ActionResult<IEnumerable<InvoiceResponseDto>>> GetAll()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var invoices = await _invoiceService.GetAllInvoicesAsync(userId);
+        var invoices = await _invoiceService.GetAllInvoicesAsync(UserId);
         return Ok(ApiResponse<IEnumerable<InvoiceResponseDto>>.SuccessResponse(invoices, "Invoices retrieved successfully!"));
     }
 
     [HttpGet]
     public async Task<ActionResult<PagedResult<InvoiceResponseDto>>> GetPaged([FromQuery] InvoiceQueryParams invoiceQueryParams)
     {
-        var invoices = await _invoiceService.GetPagedAsync(invoiceQueryParams);
+        var invoices = await _invoiceService.GetPagedAsync(invoiceQueryParams,UserId);
         return Ok(ApiResponse<PagedResult<InvoiceResponseDto>>.SuccessResponse(invoices!, "Invoices retrieved successfully!"));
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<InvoiceResponseDto>> GetById(Guid id)
     {
-        var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
+        var invoice = await _invoiceService.GetInvoiceByIdAsync(id,UserId);
         if (invoice == null)
         {
             return NotFound();
@@ -51,8 +51,7 @@ public class InvoiceController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<InvoiceResponseDto>> Create([FromBody] CreateInvoiceRequest createInvoiceRequest)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var createdInvoice = await _invoiceService.CreateInvoiceAsync(createInvoiceRequest,userId);
+        var createdInvoice = await _invoiceService.CreateInvoiceAsync(createInvoiceRequest,UserId);
         if (createdInvoice == null)
             return NotFound($"Customer with ID {createInvoiceRequest.CustomerId} not found");
         return CreatedAtAction(nameof(GetById), new { id = createdInvoice.Id }, createdInvoice);
@@ -61,7 +60,7 @@ public class InvoiceController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<InvoiceResponseDto>> Update(Guid id, [FromBody] UpdateInvoiceRequest request)
     {
-        var invoice = await _invoiceService.UpdateInvoiceAsync(id, request);
+        var invoice = await _invoiceService.UpdateInvoiceAsync(id, request,UserId);
         if (invoice == null)
             return BadRequest("Invoice not found or cannot be updated (must be in Created status).");
 
@@ -71,7 +70,7 @@ public class InvoiceController : ControllerBase
     [HttpPost("{id:guid}/status")]
     public async Task<ActionResult<InvoiceResponseDto>> ChangeStatus(Guid id, [FromBody] ChangeStatusInvoiceRequest request)
     {
-        var invoice = await _invoiceService.ChangeInvoiceStatusAsync(id, request);
+        var invoice = await _invoiceService.ChangeInvoiceStatusAsync(id, request,UserId);
         if (invoice == null)
             return BadRequest("Invoice not found or cannot change status.");
         return Ok(invoice);
@@ -80,7 +79,7 @@ public class InvoiceController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> Delete(Guid id)
     {
-        var success = await _invoiceService.DeleteInvoiceAsync(id);
+        var success = await _invoiceService.DeleteInvoiceAsync(id,UserId);
         if (!success)
             return BadRequest("Invoice not found or cannot be deleted (must be in Created status).");
 
@@ -90,7 +89,7 @@ public class InvoiceController : ControllerBase
     [HttpPost("{id}/archive")]
     public async Task<ActionResult<InvoiceResponseDto>> Archive(Guid id)
     {
-        var isArchive = await _invoiceService.ArchiveInvoiceAsync(id);
+        var isArchive = await _invoiceService.ArchiveInvoiceAsync(id,UserId);
 
         if (isArchive is null)
             return BadRequest($"Customer with id {id} not found");
@@ -102,7 +101,7 @@ public class InvoiceController : ControllerBase
     [HttpGet("{id:guid}/download")]
     public async Task<ActionResult> Download(Guid id, [FromQuery] string format = "pdf")
     {
-        var file = await _invoiceService.DownloadInvoiceAsync(id, format ?? "pdf");
+        var file = await _invoiceService.DownloadInvoiceAsync(id, format ?? "pdf", UserId);
         if (file is null) return NotFound();
 
         return File(file.Value.Content, file.Value.ContentType, file.Value.FileName);

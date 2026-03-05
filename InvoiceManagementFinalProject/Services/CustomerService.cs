@@ -18,12 +18,12 @@ public class CustomerService : ICustomerService
         _context = context;
         _mapper = mapper;
     }
-    public async Task<CustomerResponseDto?> ArchiveCustomerAsync(Guid id)
+    public async Task<CustomerResponseDto?> ArchiveCustomerAsync(Guid id, string currentUserId)
     {
 
         var customer = await _context
                              .Customers
-                             .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
+                             .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null && c.UserId == currentUserId);
 
         if (customer is null) return null;
 
@@ -49,12 +49,12 @@ public class CustomerService : ICustomerService
     }
 
 
-    public async Task<bool> DeleteCustomerAsync(Guid id)
+    public async Task<bool> DeleteCustomerAsync(Guid id ,string currentUserId)
     {
         var customer = await _context
                                 .Customers
                                 .Include(c => c.Invoices)
-                                .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
+                                .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null && c.UserId == currentUserId);
 
         if (customer == null) return false; 
 
@@ -80,12 +80,12 @@ public class CustomerService : ICustomerService
         return _mapper.Map<List<CustomerResponseDto>>(customers);
     }
 
-    public async Task<PagedResult<CustomerResponseDto>> GetPagedAsync(CustomerQueryParams customerQueryParams)
+    public async Task<PagedResult<CustomerResponseDto>> GetPagedAsync(CustomerQueryParams customerQueryParams,string currentUserId)
     {
         customerQueryParams.Validate();
 
         var query = _context.Customers
-                             .Where(c => c.DeletedAt == null)
+                             .Where(c => c.DeletedAt == null && c.UserId == currentUserId)
                              .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(customerQueryParams.Search))
@@ -146,21 +146,21 @@ public class CustomerService : ICustomerService
     {
         var customer = await _context
                                 .Customers
-                                .Where(c => c.DeletedAt == null && c.UserId == currentUserId)                                
-                                .FirstOrDefaultAsync(c => c.Id == customerId);
+                                .Where(c => c.DeletedAt == null)                                
+                                .FirstOrDefaultAsync(c => c.Id == customerId && c.UserId == currentUserId);
         if (customer is null)
             return null;
 
         return _mapper.Map<CustomerResponseDto>(customer);
     }
 
-    public async Task<CustomerResponseDto> UpdateCustomerAsync(Guid id, UpdateCustomerRequest updateCustomerRequest)
+    public async Task<CustomerResponseDto> UpdateCustomerAsync(Guid id, UpdateCustomerRequest updateCustomerRequest ,string currentUserId)
     {
 
         var updatedCustomer = await _context
                                     .Customers
                                     .Include(c => c.Invoices)
-                                    .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
+                                    .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null && c.UserId == currentUserId);
 
         _mapper.Map(updateCustomerRequest, updatedCustomer);
         updatedCustomer.UpdatedAt = DateTimeOffset.UtcNow;

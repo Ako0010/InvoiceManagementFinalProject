@@ -14,7 +14,7 @@ namespace InvoiceManagementFinalProject.Controllers;
 public class CustomersController : ControllerBase
 {
     private readonly ICustomerService _customerService;
-
+    private string? UserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
     public CustomersController(ICustomerService customerService)
     {
@@ -26,9 +26,8 @@ public class CustomersController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<CustomerResponseDto>), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Create([FromBody] CreateCustomerRequest createCustomerRequest)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var createdCustomer = await _customerService.CreateCustomerAsync(createCustomerRequest,userId);
+        var createdCustomer = await _customerService.CreateCustomerAsync(createCustomerRequest,UserId);
         return CreatedAtAction(
             nameof(GetById), 
             new { id = createdCustomer.Id }, 
@@ -39,15 +38,14 @@ public class CustomersController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<IEnumerable<CustomerResponseDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult> GetAll()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var customers = await _customerService.GetAllCustomersAsync(userId);
+        var customers = await _customerService.GetAllCustomersAsync(UserId);
         return Ok(ApiResponse<IEnumerable<CustomerResponseDto>>.SuccessResponse(customers, "Customers returned successfully"));
     }
 
     [HttpGet]
     public async Task<ActionResult<PagedResult<CustomerResponseDto>>> GetPaged([FromQuery] CustomerQueryParams customerQueryParams)
     {
-        var customers = await _customerService.GetPagedAsync(customerQueryParams);
+        var customers = await _customerService.GetPagedAsync(customerQueryParams,UserId);
         return Ok(customers);
     }
 
@@ -55,10 +53,9 @@ public class CustomersController : ControllerBase
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(ApiResponse<CustomerResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<CustomerResponseDto>), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> GetById([FromBody]Guid id)
+    public async Task<ActionResult> GetById(Guid id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var customer = await _customerService.GetCustomerByIdAsync(id,userId);
+        var customer = await _customerService.GetCustomerByIdAsync(id,UserId);
         return Ok(ApiResponse<CustomerResponseDto>.SuccessResponse(customer, "Customer returned successfully"));
     }
 
@@ -68,7 +65,7 @@ public class CustomersController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<CustomerResponseDto>), StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Update(Guid id, [FromBody] UpdateCustomerRequest updateCustomerRequest)
     {
-        var updatedCustomer = await _customerService.UpdateCustomerAsync(id, updateCustomerRequest);
+        var updatedCustomer = await _customerService.UpdateCustomerAsync(id, updateCustomerRequest,UserId);
         return Ok(ApiResponse<CustomerResponseDto>.SuccessResponse(updatedCustomer, "Customer updated successfully"));
     }
 
@@ -77,7 +74,7 @@ public class CustomersController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Delete(Guid id)
     {
-        var result = await _customerService.DeleteCustomerAsync(id);
+        var result = await _customerService.DeleteCustomerAsync(id,UserId);
         if (!result)
         {
             return NotFound();
@@ -88,7 +85,7 @@ public class CustomersController : ControllerBase
     [HttpPost("{id:guid}/archive")]
     public async Task<ActionResult> Archive(Guid id)
     {
-        var IsArchived = await _customerService.ArchiveCustomerAsync(id);
+        var IsArchived = await _customerService.ArchiveCustomerAsync(id,UserId);
 
         if (IsArchived is null)
             return NotFound($"Customer with id {id} Not found");
